@@ -1,0 +1,661 @@
+/* ============================================================
+   StudentQuizPage.css — Enhanced UI (scoped to [data-student-quiz] only)
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap');
+
+/* ---------- Design tokens (page subtree only — no :root leakage) ---------- */
+[data-student-quiz] {
+  --sq-font: 'DM Sans', system-ui, sans-serif;
+
+  --sq-bg:           #f5f4f1;
+  --sq-surface:      #ffffff;
+  --sq-surface-alt:  #f5f4f1;
+
+  --sq-text:         #1a1917;
+  --sq-text-muted:   #6b6965;
+  --sq-text-hint:    #a09d9a;
+
+  --sq-border:       rgba(0,0,0,0.10);
+  --sq-border-subtle:rgba(0,0,0,0.06);
+
+  --sq-accent:       #534AB7;
+  --sq-accent-light: #EEEDFE;
+  --sq-accent-dark:  #3C3489;
+
+  --sq-success:      #1D9E75;
+  --sq-success-bg:   #E1F5EE;
+  --sq-danger:       #E24B4A;
+  --sq-danger-bg:    #FCEBEB;
+  --sq-warn:         #BA7517;
+  --sq-warn-bg:      #FAEEDA;
+
+  --sq-ring-purple:  #534AB7;
+  --sq-ring-amber:   #BA7517;
+  --sq-ring-red:     #E24B4A;
+
+  --sq-score-high:   #1D9E75;
+  --sq-score-mid:    #534AB7;
+  --sq-score-low:    #E24B4A;
+
+  --sq-radius-sm:    8px;
+  --sq-radius-md:    12px;
+  --sq-radius-lg:    16px;
+  --sq-radius-pill:  999px;
+
+  --sq-shadow-card:  0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+
+  /* Light theme only — ignore OS dark preference for this page */
+  color-scheme: light;
+
+  font-family: var(--sq-font);
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--sq-text);
+  background: var(--sq-bg);
+  min-height: 100dvh;
+}
+
+/* Reset only inside the quiz shell; :where(…) keeps specificity low so .sq-* padding wins */
+[data-student-quiz],
+[data-student-quiz] :where(*, *::before, *::after) {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ---------- Shell ---------- */
+[data-student-quiz].sq-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1rem 4rem;
+  min-height: 100dvh;
+  background: #fdfcfd;
+}
+
+[data-student-quiz].sq-container.sq-container-center {
+  justify-content: center;
+  padding-bottom: 2rem;
+}
+
+/* ---------- Step animation ---------- */
+@keyframes sqFadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+[data-student-quiz] .sq-step-enter {
+  width: 100%;
+  max-width: 500px; 
+}
+
+/* ---------- Logo badge ---------- */
+[data-student-quiz] .sq-logo-badge {
+  display: inline-flex;
+  align-items: center;
+  background: var(--sq-surface);
+  border: 0.5px solid var(--sq-border);
+  border-radius: var(--sq-radius-pill);
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--sq-text-muted);
+  margin-bottom: 1.25rem;
+}
+[data-student-quiz] .sq-logo-badge i { font-size: 15px; }
+
+/* ---------- Card ---------- */
+[data-student-quiz] .sq-card {
+  background: var(--sq-surface);
+  border: 0.5px solid var(--sq-border);
+  border-radius: var(--sq-radius-lg);
+  padding: 1.75rem 1.5rem;
+  width: 100%;
+}
+
+/* ---------- Typography ---------- */
+[data-student-quiz] .sq-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--sq-text);
+  line-height: 1.3;
+  margin-bottom: 0.4rem;
+}
+
+[data-student-quiz] .sq-subtitle {
+  font-size: 0.875rem;
+  color: var(--sq-text-muted);
+  line-height: 1.6;
+  margin-bottom: 1.25rem;
+}
+
+[data-student-quiz] .sq-muted {
+  font-size: 0.875rem;
+  color: var(--sq-text-muted);
+  line-height: 1.6;
+  margin-bottom: 0.5rem;
+}
+
+/* ---------- Divider ---------- */
+[data-student-quiz] .sq-divider {
+  border: none;
+  border-top: 0.5px solid var(--sq-border);
+  margin: 1.25rem 0;
+}
+
+/* ---------- Form controls ---------- */
+[data-student-quiz] .sq-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--sq-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 6px;
+}
+
+[data-student-quiz] .sq-input,
+[data-student-quiz] .sq-select {
+  width: 100%;
+  padding: 10px 13px;
+  border: 0.5px solid var(--sq-border);
+  border-radius: var(--sq-radius-sm);
+  background: var(--sq-surface-alt);
+  color: var(--sq-text);
+  font-family: var(--sq-font);
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  appearance: none;
+  -webkit-appearance: none;
+}
+[data-student-quiz] .sq-input::placeholder { color: var(--sq-text-hint); }
+[data-student-quiz] .sq-input:focus,
+[data-student-quiz] .sq-select:focus {
+  border-color: var(--sq-accent);
+  box-shadow: 0 0 0 3px rgba(83,74,183,0.12);
+  background: var(--sq-surface);
+}
+
+[data-student-quiz] .sq-select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b6965' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+  cursor: pointer;
+}
+
+[data-student-quiz] .sq-form-group { margin-bottom: 1rem; }
+
+[data-student-quiz] .sq-error {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  color: var(--sq-danger);
+  margin-top: 6px;
+}
+[data-student-quiz] .sq-error::before {
+  content: '';
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  background: var(--sq-danger);
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cline x1='12' y1='8' x2='12' y2='12'/%3E%3Cline x1='12' y1='16' x2='12.01' y2='16'/%3E%3C/svg%3E");
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  flex-shrink: 0;
+}
+
+/* ---------- Buttons ---------- */
+[data-student-quiz] .sq-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 10px 18px;
+  border-radius: var(--sq-radius-sm);
+  font-family: var(--sq-font);
+  font-size: 14.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.14s, transform 0.1s, opacity 0.14s;
+  border: 0.5px solid transparent;
+  white-space: nowrap;
+}
+[data-student-quiz] .sq-btn:active:not(:disabled) { transform: scale(0.975); }
+[data-student-quiz] .sq-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+[data-student-quiz] .sq-btn-primary {
+  background: var(--sq-accent);
+  color: #fff;
+  border-color: var(--sq-accent);
+  width: 100%;
+}
+[data-student-quiz] .sq-btn-primary:hover:not(:disabled) { background: var(--sq-accent-dark); border-color: var(--sq-accent-dark); }
+
+[data-student-quiz] .sq-btn-ghost {
+  background: transparent;
+  color: var(--sq-text);
+  border-color: var(--sq-border);
+}
+[data-student-quiz] .sq-btn-ghost:hover:not(:disabled) { background: var(--sq-surface-alt); }
+
+[data-student-quiz] .sq-row-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 1.25rem;
+  justify-content: flex-end;
+  align-items: center;
+}
+[data-student-quiz] .sq-row-actions .sq-btn-primary {
+  width: auto;
+  flex: 0 0 auto;
+}
+[data-student-quiz] .sq-row-actions--full {
+  width: 100%;
+  justify-content: stretch;
+}
+[data-student-quiz] .sq-row-actions--full .sq-btn-primary {
+  width: 100%;
+  flex: 1 1 100%;
+}
+[data-student-quiz] .sq-row-actions .sq-btn-ghost   { flex-shrink: 0; }
+
+/* ---------- Progress bar ---------- */
+[data-student-quiz] .sq-progress-wrap {
+  width: 100%;
+  max-width: 500px;
+  margin-bottom: 0.85rem;
+}
+[data-student-quiz] .sq-progress-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 7px;
+  font-size: 13px;
+}
+[data-student-quiz] .sq-progress-meta-left { font-weight: 500; color: var(--sq-text); }
+
+[data-student-quiz] .sq-card-head {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 0.75rem;
+}
+[data-student-quiz] .sq-card-head .sq-badge {
+  margin-bottom: 0;
+}
+
+[data-student-quiz] .sq-progress-track {
+  height: 4px;
+  background: var(--sq-surface-alt);
+  border-radius: var(--sq-radius-pill);
+  overflow: hidden;
+  border: 0.5px solid var(--sq-border-subtle);
+}
+[data-student-quiz] .sq-progress-fill {
+  height: 100%;
+  background: var(--sq-accent);
+  border-radius: var(--sq-radius-pill);
+  transition: width 0.45s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* ---------- Step dots ---------- */
+[data-student-quiz] .sq-dots {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 1rem;
+}
+[data-student-quiz] .sq-dot {
+  width: 7px; height: 7px;
+  border-radius: var(--sq-radius-pill);
+  background: var(--sq-border);
+  transition: all 0.25s ease;
+}
+[data-student-quiz] .sq-dot-done    { background: var(--sq-accent); opacity: 0.45; }
+[data-student-quiz] .sq-dot-current { background: var(--sq-accent); width: 18px; }
+
+/* ---------- Timer countdown ring ---------- */
+[data-student-quiz] .sq-ring-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+[data-student-quiz] .sq-timer-inline {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+}
+[data-student-quiz] .sq-timer-inline svg { display: block; }
+[data-student-quiz] .sq-timer-num {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--sq-text-muted);
+}
+
+/* ---------- Question type badge ---------- */
+[data-student-quiz] .sq-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 11px;
+  border-radius: var(--sq-radius-pill);
+  margin-bottom: 0.75rem;
+}
+[data-student-quiz] .sq-badge-single { background: var(--sq-accent-light); color: var(--sq-accent); }
+[data-student-quiz] .sq-badge-multi  { background: var(--sq-success-bg);   color: var(--sq-success); }
+
+/* ---------- Options ---------- */
+[data-student-quiz] .sq-option {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  padding: 11px 13px;
+  border: 0.5px solid var(--sq-border);
+  border-radius: var(--sq-radius-sm);
+  background: var(--sq-surface);
+  color: var(--sq-text);
+  font-family: var(--sq-font);
+  font-size: 14.5px;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.14s, background 0.14s;
+  margin-bottom: 0;
+}
+[data-student-quiz] .sq-option:hover:not(.sq-option-selected) {
+  border-color: rgba(83,74,183,0.4);
+  background: var(--sq-accent-light);
+}
+[data-student-quiz] .sq-option-selected {
+  border-color: var(--sq-accent);
+  background: var(--sq-accent-light);
+}
+
+[data-student-quiz] .sq-option-key {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1.5px solid var(--sq-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11.5px;
+  font-weight: 600;
+  flex-shrink: 0;
+  color: var(--sq-text-muted);
+  transition: border-color 0.14s, background 0.14s, color 0.14s;
+}
+[data-student-quiz] .sq-option-selected .sq-option-key {
+  background: var(--sq-accent);
+  border-color: var(--sq-accent);
+  color: #fff;
+}
+
+[data-student-quiz] .sq-option-key-multi {
+  border-radius: 5px;
+}
+
+/* ---------- Confirm info rows ---------- */
+[data-student-quiz] .sq-confirm-rows { display: flex; flex-direction: column; gap: 8px; margin: 1rem 0; }
+[data-student-quiz] .sq-confirm-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--sq-surface-alt);
+  border: 0.5px solid var(--sq-border-subtle);
+  border-radius: var(--sq-radius-sm);
+  padding: 10px 13px;
+}
+[data-student-quiz] .sq-confirm-row i { font-size: 16px; color: var(--sq-text-muted); flex-shrink: 0; }
+[data-student-quiz] .sq-confirm-row-label { font-size: 12px; color: var(--sq-text-muted); flex: 1; }
+[data-student-quiz] .sq-confirm-row-val   { font-size: 14px; font-weight: 500; color: var(--sq-text); }
+
+/* ---------- Results — score ring ---------- */
+[data-student-quiz] .sq-score-ring-wrap {
+  display: flex;
+  justify-content: center;
+  margin: 0.5rem 0 1rem;
+}
+
+[data-student-quiz] .sq-score-ring-inner {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  margin-inline: auto;
+}
+
+[data-student-quiz] .sq-score-ring-inner > svg {
+  display: block;
+}
+
+[data-student-quiz] .sq-score-ring-pct {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.55rem;
+  font-weight: 600;
+  color: var(--sq-text);
+  line-height: 1;
+  pointer-events: none;
+}
+
+/* ---------- Results — grade badge ---------- */
+[data-student-quiz] .sq-grade-a { background: var(--sq-success-bg); color: var(--sq-success); }
+[data-student-quiz] .sq-grade-b { background: var(--sq-accent-light); color: var(--sq-accent); }
+[data-student-quiz] .sq-grade-c { background: var(--sq-warn-bg); color: var(--sq-warn); }
+[data-student-quiz] .sq-grade-d { background: var(--sq-danger-bg); color: var(--sq-danger); }
+
+/* ---------- Results — stat grid ---------- */
+[data-student-quiz] .sq-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 1.25rem 0;
+}
+[data-student-quiz] .sq-stat-cell {
+  background: var(--sq-surface-alt);
+  border-radius: var(--sq-radius-sm);
+  padding: 13px 10px;
+  text-align: center;
+  border: 0.5px solid var(--sq-border-subtle);
+}
+[data-student-quiz] .sq-stat-value {
+  display: block;
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: var(--sq-text);
+  line-height: 1.2;
+}
+[data-student-quiz] .sq-stat-label {
+  font-size: 11.5px;
+  color: var(--sq-text-muted);
+  margin-top: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 500;
+}
+
+/* ---------- Results — review rows ---------- */
+[data-student-quiz] .sq-review-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 0.5px solid var(--sq-border-subtle);
+}
+[data-student-quiz] .sq-review-row:last-child { border-bottom: none; }
+
+[data-student-quiz] .sq-icon-ok {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: var(--sq-success);
+  color: #fff;
+  font-size: 11px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+[data-student-quiz] .sq-icon-bad {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: var(--sq-danger);
+  color: #fff;
+  font-size: 11px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* ---------- Submitting spinner ---------- */
+@keyframes sqSpin { to { transform: rotate(360deg); } }
+[data-student-quiz] .sq-spin { animation: sqSpin 0.85s linear infinite; display: inline-block; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 540px) {
+  [data-student-quiz].sq-container { padding: 1.25rem 0.85rem 3rem; }
+  [data-student-quiz] .sq-card { padding: 1.35rem 1.1rem; border-radius: var(--sq-radius-md); }
+  [data-student-quiz] .sq-title { font-size: 1.1rem; }
+  [data-student-quiz] .sq-row-actions { flex-direction: column; align-items: stretch; }
+  [data-student-quiz] .sq-row-actions--full { align-items: stretch; }
+  [data-student-quiz] .sq-row-actions .sq-btn-ghost { width: 100%; }
+}
+
+/* ---------- Flip countdown (not-started screen) ---------- */
+[data-student-quiz] .sq-flip-countdown-wrap {
+  width: 100%;
+  max-width: 100%;
+  margin-top: 0.85rem;
+  display: flex;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+[data-student-quiz] .sq-flip-countdown {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  flex-wrap: nowrap;
+  gap: clamp(6px, 2vw, 14px);
+  max-width: 100%;
+  box-sizing: border-box;
+  /* Fluid scale so 8–9 tiles fit phone widths */
+  font-size: clamp(1rem, 4.6vw + 0.35rem, 2.2rem);
+  /* Use tabular numerals where supported to prevent width jitter */
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+[data-student-quiz] .sq-flip-unit-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(4px, 1.2vw, 8px);
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+[data-student-quiz] .sq-flip-unit-label {
+  font-size: clamp(8px, 2.2vw, 10px);
+  color: var(--sq-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  text-align: center;
+  width: 100%;
+}
+
+/* Force each flip digit to a fixed width */
+[data-student-quiz] .sq-flip-countdown .tick-flip {
+  width: 1.25em;
+  min-width: 1.25em;
+}
+
+/* Single-digit tiles: Flip’s default letter-spacing widens each tile unnecessarily */
+[data-student-quiz] .sq-flip-countdown .tick {
+  letter-spacing: 0.02em;
+  text-indent: 0.02em;
+}
+
+/* Ensure panel text uses tabular numerals too */
+[data-student-quiz] .sq-flip-countdown .tick-flip-panel-text-wrapper {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* Digit-row wrapper (each digit is its own Tick instance) */
+[data-student-quiz] .sq-flip-countdown .sq-flip-digits {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(2px, 1vw, 6px);
+}
+
+/* Hide the days hundreds digit until days >= 100 (keeps layout predictable) */
+[data-student-quiz] .sq-flip-countdown .sq-days-hundreds-hidden > :first-child {
+  display: none;
+}
+
+@media (max-width: 540px) {
+  [data-student-quiz] .sq-flip-countdown {
+    gap: clamp(2px, 1.5vw, 8px);
+    font-size: clamp(0.68rem, 5.5vw, 1.35rem);
+    padding-inline: 0;
+  }
+
+  [data-student-quiz] .sq-flip-countdown .sq-flip-digits {
+    gap: 2px;
+  }
+
+  [data-student-quiz] .sq-flip-countdown .tick-flip {
+    width: 1.12em;
+    min-width: 1.12em;
+    margin-left: 0.035em;
+    margin-right: 0.035em;
+  }
+
+  [data-student-quiz] .sq-flip-unit-label {
+    letter-spacing: 0.04em;
+  }
+
+  /* Last resort: horizontal scroll instead of clipping digits */
+  [data-student-quiz] .sq-flip-countdown-wrap {
+    overflow-x: auto;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 2px;
+    margin-inline: -4px;
+    padding-inline: 4px;
+  }
+}
+
+@media (max-width: 380px) {
+  [data-student-quiz] .sq-flip-countdown {
+    font-size: clamp(0.62rem, 5.8vw, 1.15rem);
+    gap: 2px;
+  }
+
+  [data-student-quiz] .sq-flip-countdown .tick-flip {
+    width: 1.08em;
+    min-width: 1.08em;
+  }
+}
