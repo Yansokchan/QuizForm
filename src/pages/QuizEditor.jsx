@@ -129,7 +129,7 @@ export default function QuizEditor() {
       if (!userId) {
         setSaving(false);
         setError("Session expired. Please log in again.");
-        navigate("/login");
+        navigate("/?signin=1");
         return;
       }
 

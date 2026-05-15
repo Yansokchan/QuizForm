@@ -1,10 +1,12 @@
 import { Link } from "react-router-dom";
 import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler";
 import DashboardButton from "@/components/ui/DashboardButton.jsx";
+import { useAuthLoginDialog } from "@/contexts/AuthLoginDialogContext";
 import useAuth from "@/hooks/useAuth";
 
 export default function LandingNav({ scrolled }) {
   const { session, loading } = useAuth();
+  const { openLogin } = useAuthLoginDialog();
   const isSignedIn = Boolean(session);
 
   return (
@@ -18,7 +20,7 @@ export default function LandingNav({ scrolled }) {
           </DashboardButton>
         )}
         {!loading && !isSignedIn && (
-          <DashboardButton to="/login" compact>
+          <DashboardButton type="button" compact onClick={openLogin}>
             Sign in
           </DashboardButton>
         )}

@@ -1,7 +1,10 @@
 import CtaButton from "../ui/CtaButton.jsx";
 import { InteractiveGridPattern } from "../ui/interactive-grid-pattern.jsx";
+import { useAuthLoginDialog } from "@/contexts/AuthLoginDialogContext";
 
 export default function LandingCta() {
+  const { openLogin } = useAuthLoginDialog();
+
   return (
     <div className="lp-cta">
       <div className="hero-grid-bg" aria-hidden="true">
@@ -15,7 +18,7 @@ export default function LandingCta() {
       <h2>Ready to run your<br />first quiz <em>today?</em></h2>
       <CtaButton
         className="lp-cta-btn mt-10"
-        to="/login"
+        onClick={openLogin}
         primaryText="Get Started Free"
         secondaryText="Get Started Free"
       />

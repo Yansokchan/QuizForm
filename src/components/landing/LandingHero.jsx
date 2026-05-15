@@ -1,8 +1,10 @@
-import { Link } from "react-router-dom";
 import HeroButton from "../ui/HeroButton.jsx";
 import { InteractiveGridPattern } from "@/components/ui/interactive-grid-pattern";
+import { useAuthLoginDialog } from "@/contexts/AuthLoginDialogContext";
 
 export default function LandingHero() {
+  const { openLogin } = useAuthLoginDialog();
+
   return (
     <section className="flex flex-col items-start justify-center pl-12 h-screen hero">
       <div className="hero-grid-bg" aria-hidden="true">
@@ -17,7 +19,7 @@ export default function LandingHero() {
       <h1 className="hero-h1">Quizzes that<br />run <em>themselves.</em></h1>
       <p className="hero-sub">Build timed quizzes in minutes. Share one link with your class. Review scores and export results from a single dashboard.</p>
       <div className="hero-actions">
-        <HeroButton to="/login">Start as Teacher</HeroButton>
+        <HeroButton onClick={openLogin}>Start as Teacher</HeroButton>
       </div>
     </section>
   );

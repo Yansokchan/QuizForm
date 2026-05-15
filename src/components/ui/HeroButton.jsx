@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 
-const HeroButton = ({ to, children = 'Apply Now' }) => {
+const HeroButton = ({ to, onClick, children = 'Apply Now', ...rest }) => {
   const inner = (
     <span className="button-inner">
       {children}
@@ -15,11 +15,11 @@ const HeroButton = ({ to, children = 'Apply Now' }) => {
   return (
     <StyledWrapper>
       {to ? (
-        <Link to={to} className="button">
+        <Link to={to} className="button" {...rest}>
           {inner}
         </Link>
       ) : (
-        <button type="button" className="button">
+        <button type="button" className="button" onClick={onClick} {...rest}>
           {inner}
         </button>
       )}

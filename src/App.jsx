@@ -1,4 +1,5 @@
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Navigate, Route, Routes, useSearchParams } from 'react-router-dom'
+import { useEffect } from 'react'
 import ProtectedRoute from './components/ProtectedRoute'
 import DashboardLayout from './components/DashboardLayout'
 import Dashboard from './pages/Dashboard'
@@ -10,16 +11,32 @@ import QuizEditor from './pages/QuizEditor'
 import ResultsPage from './pages/ResultsPage'
 import StudentQuizPage from './pages/StudentQuizPage'
 import SubmissionsPage from './pages/SubmissionsPage'
+import { AuthLoginDialogProvider, useAuthLoginDialog } from './contexts/AuthLoginDialogContext'
 
-function App() {
+function SignInQueryHandler() {
+  const [searchParams, setSearchParams] = useSearchParams()
+  const { openLogin } = useAuthLoginDialog()
+
+  useEffect(() => {
+    if (searchParams.get('signin') !== '1') return
+    openLogin()
+    const next = new URLSearchParams(searchParams)
+    next.delete('signin')
+    setSearchParams(next, { replace: true })
+  }, [searchParams, setSearchParams, openLogin])
+
+  return null
+}
+
+function AppRoutes() {
   return (
-    <BrowserRouter>
+    <>
+      <SignInQueryHandler />
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/q/:token" element={<StudentQuizPage />} />
-        
-        {/* Dashboard Routes with Sidebar */}
+
         <Route
           path="/dashboard"
           element={
@@ -32,7 +49,7 @@ function App() {
           <Route path="quizzes" element={<QuizzesPage />} />
           <Route path="submissions" element={<SubmissionsPage />} />
           <Route path="classes" element={<ClassesPage />} />
-          
+
           <Route path="quiz/create" element={<QuizEditor />} />
           <Route path="quiz/:id" element={<QuizEditor />} />
           <Route path="quiz/:id/results" element={<ResultsPage />} />
@@ -40,6 +57,16 @@ function App() {
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+    </>
+  )
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <AuthLoginDialogProvider>
+        <AppRoutes />
+      </AuthLoginDialogProvider>
     </BrowserRouter>
   )
 }

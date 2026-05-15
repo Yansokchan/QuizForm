@@ -20,9 +20,11 @@ function charSpans(text) {
 
 const CtaButton = ({
   to,
+  onClick,
   primaryText = 'Join Today',
   secondaryText = 'Join Now',
   className,
+  ...rest
 }) => {
   const longest = Math.max(primaryText.length, secondaryText.length);
   const btnWidth = Math.max(220, Math.min(380, longest * 14 + 100));
@@ -65,11 +67,11 @@ const CtaButton = ({
   return (
     <StyledWrapper $btnWidth={btnWidth} className={className}>
       {to ? (
-        <Link to={to} className="button">
+        <Link to={to} className="button" {...rest}>
           {inner}
         </Link>
       ) : (
-        <button type="button" className="button">
+        <button type="button" className="button" onClick={onClick} {...rest}>
           {inner}
         </button>
       )}
