@@ -9,6 +9,13 @@ import { QuizDetailsForm } from "../components/quiz-editor/QuizDetailsForm";
 import { QuestionBuilderForm } from "../components/quiz-editor/QuestionBuilderForm";
 import { QuestionList } from "../components/quiz-editor/QuestionList";
 import { QuizLinkShare } from "../components/quiz-editor/QuizLinkShare";
+import { notify } from "../lib/notify";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
+
+function showError(setter, message) {
+  setter(message);
+  notify.error(message);
+}
 
 const emptyQuestion = {
   question_text: "",
@@ -48,6 +55,8 @@ export default function QuizEditor() {
   const isEdit = id && id !== "create";
   const isLocked = (quizStarted || quizEnded) && isEdit;
 
+  useDocumentTitle(isEdit ? quiz.title.trim() || "Edit" : "Create");
+
   const loadQuizData = useCallback(async () => {
     if (!isEdit) {
       setLoading(false);
@@ -58,13 +67,21 @@ export default function QuizEditor() {
       return;
     }
     setLoading(true);
-    const { data } = await supabase
+    const { data, error: fetchError } = await supabase
       .from("quizzes")
       .select("*")
       .eq("id", id)
       .eq("teacher_id", teacherId)
       .maybeSingle();
+    if (fetchError) {
+      notify.error("Failed to load quiz.");
+      setLoading(false);
+      navigate("/dashboard/quizzes", { replace: true });
+      return;
+    }
     if (!data) {
+      notify.error("Quiz not found.");
+      setLoading(false);
       navigate("/dashboard/quizzes", { replace: true });
       return;
     }
@@ -104,21 +121,21 @@ export default function QuizEditor() {
   const saveQuiz = async () => {
     setError("");
     if (!quiz.title.trim()) {
-      setError("Quiz title is required.");
+      showError(setError, "Quiz title is required.");
       return;
     }
     if (!quiz.start_at || !quiz.end_at) {
-      setError("Start and end date/time are required.");
+      showError(setError, "Start and end date/time are required.");
       return;
     }
     const startAt = new Date(quiz.start_at);
     const endAt = new Date(quiz.end_at);
     if (Number.isNaN(startAt.getTime()) || Number.isNaN(endAt.getTime())) {
-      setError("Invalid date/time format.");
+      showError(setError, "Invalid date/time format.");
       return;
     }
     if (startAt >= endAt) {
-      setError("Start time must be before end time.");
+      showError(setError, "Start time must be before end time.");
       return;
     }
 
@@ -128,7 +145,7 @@ export default function QuizEditor() {
       const userId = sessionData.session?.user?.id;
       if (!userId) {
         setSaving(false);
-        setError("Session expired. Please log in again.");
+        showError(setError, "Session expired. Please log in again.");
         navigate("/?signin=1");
         return;
       }
@@ -147,7 +164,7 @@ export default function QuizEditor() {
         .single();
       if (insertError) {
         setSaving(false);
-        setError(`Unable to create quiz: ${insertError.message}`);
+        showError(setError, `Unable to create quiz: ${insertError.message}`);
         return;
       }
       if (data?.id) {
@@ -185,6 +202,7 @@ export default function QuizEditor() {
           }
         }
 
+        notify.success("Quiz created.");
         navigate(`/dashboard/quiz/${data.id}`);
       }
       setSaving(false);
@@ -202,7 +220,7 @@ export default function QuizEditor() {
 
     if (updateError) {
       setSaving(false);
-      setError(`Unable to update quiz: ${updateError.message}`);
+      showError(setError, `Unable to update quiz: ${updateError.message}`);
     } else {
       // Sync classes
       const initialIds = initialClasses.map((c) => c.id);
@@ -290,6 +308,7 @@ export default function QuizEditor() {
 
       setSaving(false);
       await loadQuizData();
+      notify.success("Quiz saved.");
     }
   };
 
@@ -301,7 +320,7 @@ export default function QuizEditor() {
       (c) => c.class_name.toLowerCase() === name.toLowerCase(),
     );
     if (dup) {
-      setClassError("That class is already added for this quiz.");
+      showError(setClassError, "That class is already added for this quiz.");
       return;
     }
     setClasses([
@@ -362,7 +381,7 @@ export default function QuizEditor() {
     setQuestionError("");
     const msg = validateDraft();
     if (msg) {
-      setQuestionError(msg);
+      showError(setQuestionError, msg);
       return;
     }
 
@@ -406,7 +425,7 @@ export default function QuizEditor() {
   const removeQuestion = (questionId) => {
     setQuestionError("");
     if (questions.length <= 1) {
-      setQuestionError("A quiz must have at least one question.");
+      showError(setQuestionError, "A quiz must have at least one question.");
       return;
     }
     if (editingQuestionId === questionId) resetDraft();
@@ -430,9 +449,12 @@ export default function QuizEditor() {
     try {
       await navigator.clipboard.writeText(url);
       setCopyHint("Copied!");
+      notify.success("Quiz link copied.");
       setTimeout(() => setCopyHint(""), 2000);
     } catch {
-      setCopyHint("Copy failed — select the link manually.");
+      const msg = "Copy failed — select the link manually.";
+      setCopyHint(msg);
+      notify.error(msg);
     }
   };
 

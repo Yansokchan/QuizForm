@@ -10,8 +10,10 @@ import LoginPage from './pages/LoginPage'
 import QuizEditor from './pages/QuizEditor'
 import ResultsPage from './pages/ResultsPage'
 import StudentQuizPage from './pages/StudentQuizPage'
+import StudentDemoQuizPage from './pages/StudentDemoQuizPage'
 import SubmissionsPage from './pages/SubmissionsPage'
 import { AuthLoginDialogProvider, useAuthLoginDialog } from './contexts/AuthLoginDialogContext'
+import RouteTitle from './components/RouteTitle'
 
 function SignInQueryHandler() {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -31,10 +33,12 @@ function SignInQueryHandler() {
 function AppRoutes() {
   return (
     <>
+      <RouteTitle />
       <SignInQueryHandler />
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/demo" element={<StudentDemoQuizPage />} />
         <Route path="/q/:token" element={<StudentQuizPage />} />
 
         <Route

@@ -6,11 +6,11 @@ function Table({ className, ...props }) {
   return (
     <div
       data-slot="table-container"
-      className="relative clay-element w-full overflow-x-auto rounded-lg border border-slate-200"
+      className="relative clay-element w-full max-w-full min-w-0 overflow-x-auto overscroll-x-contain rounded-lg border border-slate-200 [-webkit-overflow-scrolling:touch]"
     >
       <table
         data-slot="table"
-        className={cn("w-full caption-bottom text-sm", className)}
+        className={cn("w-max min-w-full caption-bottom text-sm", className)}
         {...props}
       />
     </div>

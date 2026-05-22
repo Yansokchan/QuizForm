@@ -1,18 +1,18 @@
 const PILLARS = [
   {
     label: "01 — Setup",
-    title: "3-Step Flow",
-    body: "Create, share, and review with minimal configuration. Be live in minutes.",
+    title: "Quick setup",
+    body: "Create your quiz, share the link, and check results. A few minutes start to finish.",
   },
   {
     label: "02 — Pacing",
-    title: "Live Timing",
-    body: "Each question has its own countdown and responses lock automatically.",
+    title: "Timed questions",
+    body: "Each question has its own timer. When time's up, the quiz moves on.",
   },
   {
     label: "03 — Reporting",
-    title: "Excel Export",
-    body: "Download clean reports by quiz and class in one click.",
+    title: "Export to Excel",
+    body: "Download results by quiz and class when you need them.",
   },
 ];
 

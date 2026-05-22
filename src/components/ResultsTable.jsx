@@ -108,8 +108,8 @@ export default function ResultsTable({ rows, loading = false }) {
   });
 
   return (
-    <div className="overflow-hidden">
-      <div className="p-0">
+    <div className="min-w-0 max-w-full">
+      <div className="min-w-0 max-w-full p-0">
         <Table>
           <TableHeader className="bg-purple-100">
             {table.getHeaderGroups().map((headerGroup) => (

@@ -78,7 +78,6 @@ const StyledWrapper = styled.div`
     display: inline-flex;
     align-items: center;
     justify-content: flex-start;
-    border: 1px solid #3c3489;
     font-family: 'DM Sans', system-ui, sans-serif;
     letter-spacing: 0.04em;
     padding: 0 14px;
@@ -99,7 +98,7 @@ const StyledWrapper = styled.div`
       0 3px 0 #3c3489,
       0 3px 2px rgba(0, 0, 0, 0.15),
       0 5px 10px rgba(83, 74, 183, 0.2);
-    background: #534ab7;
+    background: linear-gradient(180deg, #a855f7 0%, #7c3aed 46%, #5b21b6 100%);
     color: white;
     text-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
     transition: box-shadow 150ms ease-in-out, transform 150ms ease-in-out;

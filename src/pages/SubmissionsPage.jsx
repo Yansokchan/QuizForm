@@ -45,6 +45,7 @@ import {
   getFilteredRowModel,
 } from "@tanstack/react-table";
 import { Button } from "../components/ui/button";
+import { notify } from "../lib/notify";
 
 export default function SubmissionsPage() {
   const { session } = useAuth();
@@ -76,6 +77,13 @@ export default function SubmissionsPage() {
           )
         `)
         .eq("quizzes.teacher_id", teacherId);
+
+      if (error) {
+        notify.error("Failed to load submissions.");
+        setSubmissions([]);
+        setLoading(false);
+        return;
+      }
 
       if (data) {
         // Calculate duration for each submission
@@ -289,7 +297,7 @@ export default function SubmissionsPage() {
   }, [submissions]);
 
   return (
-    <div className="space-y-6">
+    <div className="min-w-0 max-w-full space-y-6">
       <div>
         <h2 className="text-3xl font-bold tracking-tight text-slate-800">
           Submissions
@@ -345,8 +353,8 @@ export default function SubmissionsPage() {
         )}
       </div>
 
-      <div className="border-none">
-        <div className="flex flex-col sm:flex-row pb-6 items-start sm:items-center gap-3">
+      <div className="min-w-0 max-w-full border-none">
+        <div className="flex flex-col sm:flex-row flex-wrap pb-6 items-start sm:items-center gap-3">
           <div className="relative flex-1 max-w-sm">
             <Search className="absolute left-2.5 top-2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -360,6 +368,7 @@ export default function SubmissionsPage() {
             />
           </div>
 
+          <div className="flex items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
@@ -429,7 +438,7 @@ export default function SubmissionsPage() {
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
-
+          </div>
           {(table.getColumn("studentName")?.getFilterValue() ||
             table.getColumn("quizTitle")?.getFilterValue() ||
             table.getColumn("className")?.getFilterValue()) && (
@@ -447,7 +456,7 @@ export default function SubmissionsPage() {
           )}
         </div>
 
-        <div className="p-0">
+        <div className="min-w-0 max-w-full p-0">
           <Table>
             <TableHeader className="bg-purple-100">
               {table.getHeaderGroups().map((headerGroup) => (

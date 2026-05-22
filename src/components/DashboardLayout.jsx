@@ -14,6 +14,11 @@ import {
   Activity,
 } from "lucide-react";
 import { useState, useEffect } from "react";
+import { Toaster } from "./ui/sonner";
+import {
+  ConfirmDialogProvider,
+  useConfirm,
+} from "../contexts/ConfirmDialogContext";
 
 const navItems = [
   { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard, end: true },
@@ -22,15 +27,25 @@ const navItems = [
   { name: "Classes & Students", path: "/dashboard/classes", icon: Users },
 ];
 
-const bottomItems = [
-  { name: "Settings", path: "#", icon: Settings },
-  { name: "Search", path: "#", icon: Search },
-];
 
-export default function DashboardLayout() {
+function BrandLogo({ className = "" }) {
+  return (
+    <div className={`flex items-center group ${className}`}>
+      <img
+        src="/logo.avif"
+        alt=""
+        className="size-8 -ml-3 group-hover:rotate-10 group-hover:scale-120 transition-all duration-200"
+      />
+      <span className="font-semibold text-slate-700">QuizForm</span>
+    </div>
+  );
+}
+
+function DashboardLayoutInner() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
+  const confirm = useConfirm();
 
   /* Dashboard is light-only: shadcn tokens (e.g. bg-card) follow html.dark — strip it here and restore on leave. */
   useEffect(() => {
@@ -59,24 +74,34 @@ export default function DashboardLayout() {
     return () => sub.subscription.unsubscribe();
   }, []);
 
+  useEffect(() => {
+    if (!isMobileMenuOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [isMobileMenuOpen]);
+
   const logout = async () => {
+    const confirmed = await confirm({
+      title: "Log out?",
+      description: "You will be signed out of QuizForm and returned to the home page.",
+      confirmLabel: "Log out",
+      cancelLabel: "Stay signed in",
+      variant: "destructive",
+    });
+    if (!confirmed) return;
     await supabase.auth.signOut();
     navigate("/");
   };
 
   return (
-    <div className="flex min-h-screen bg-[#FDFCFD] text-slate-900" style={{ colorScheme: "light" }}>
+    <div className="flex min-h-screen overflow-x-hidden bg-[#FDFCFD] text-slate-900" style={{ colorScheme: "light" }}>
       {/* Sidebar for Desktop */}
       <aside className="hidden md:flex w-64 flex-col fixed inset-y-0 bg-[#E9D5FF]/40 border-r border-purple-200/50">
         <div className="p-4 pb-4">
-          <div className="flex items-center mb-4 px-2 group">
-            <img
-              src="/logo.avif"
-              alt=""
-              className="size-8 -ml-3 group-hover:rotate-10 group-hover:scale-120 transition-all duration-200"
-            />
-            <span className="font-semibold text-slate-700">QuizForm</span>
-          </div>
+          <BrandLogo className="mb-4 px-2" />
 
           <Button
             className="w-full bg-[#6d28d9] hover:bg-[#6d28d9]/80"
@@ -114,17 +139,6 @@ export default function DashboardLayout() {
         </nav>
 
         <div className="p-4 mt-auto space-y-1">
-          {bottomItems.map((item) => (
-            <Link
-              key={item.name}
-              to={item.path}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[14px] font-medium text-slate-500 hover:text-purple-600 hover:bg-purple-100/50 transition-all"
-            >
-              <item.icon className="h-4.5 w-4.5" />
-              {item.name}
-            </Link>
-          ))}
-
           <div className="mt-4 pt-4 border-t border-purple-200/50 flex items-center justify-between">
             <div className="flex items-center gap-3 overflow-hidden">
               <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-600 font-bold flex-shrink-0">
@@ -143,6 +157,7 @@ export default function DashboardLayout() {
               variant="ghost"
               size="icon"
               className="text-slate-400 hover:text-red-600 group"
+              aria-label="Log out"
               onClick={logout}
             >
               <LogOut className="h-4 w-4 group-hover:-rotate-20 group-hover:scale-110 transition-all duration-200" />
@@ -152,70 +167,105 @@ export default function DashboardLayout() {
       </aside>
 
       {/* Mobile Header */}
-      <div className="md:hidden flex items-center justify-between p-4 border-b bg-white fixed top-0 w-full z-20">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center text-white font-bold shadow-sm">
-            Q
-          </div>
-          <h1 className="text-lg font-bold tracking-tight text-slate-700">
-            QuizForm
-          </h1>
-        </div>
+      <header className="md:hidden fixed top-0 inset-x-0 z-30 flex items-center justify-between border-b border-purple-200/50 bg-[#E9D5FF]/40 px-4 py-3 backdrop-blur-sm">
+        <BrandLogo />
         <Button
           variant="ghost"
           size="icon"
+          className="text-slate-600 hover:bg-purple-200/50"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
         >
-          {isMobileMenuOpen ? <X /> : <Menu />}
+          {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </Button>
-      </div>
+      </header>
 
       {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
-        <div className="md:hidden fixed inset-0 z-10 bg-white pt-16">
-          <nav className="p-4 space-y-6">
-            <ul className="space-y-1">
+        <div className="md:hidden fixed inset-0 z-20 flex flex-col bg-[#E9D5FF] pt-[60px]">
+          <nav className="flex flex-1 flex-col overflow-y-auto p-4">
+            <Button
+              className="mb-4 w-full bg-[#6d28d9] hover:bg-[#6d28d9]/80"
+              onClick={() => {
+                setIsMobileMenuOpen(false);
+                navigate("/dashboard/quiz/create");
+              }}
+            >
+              <PlusCircle className="h-5 w-5" />
+              Quick Create
+            </Button>
+
+            <ul className="space-y-1 border-t border-purple-200/50 pt-4">
               {navItems.map((item) => (
                 <li key={item.name}>
                   <NavLink
                     to={item.path}
                     end={item.end}
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className={({ isActive }) => `
-                        flex items-center gap-3 px-4 py-3 rounded-lg text-base font-medium transition-all
-                        ${
-                          isActive
-                            ? "bg-purple-50 text-purple-600"
-                            : "text-slate-500 hover:bg-purple-50 hover:text-purple-600"
-                        }
-                    `}
+                    className={({ isActive }) =>
+                      `flex items-center gap-3 rounded-sm px-3 py-2.5 text-[15px] font-medium transition-all ${
+                        isActive
+                          ? "bg-[#8b5cf6] text-white"
+                          : "text-slate-500 hover:bg-purple-200/50 hover:text-purple-600"
+                      }`
+                    }
                   >
-                    <item.icon className="h-5 w-5" />
+                    <item.icon className="h-5 w-5 shrink-0" />
                     {item.name}
                   </NavLink>
                 </li>
               ))}
             </ul>
-            <div className="pt-4 mt-4 border-t border-purple-100/50">
-              <Button
-                variant="ghost"
-                className="w-full justify-start text-slate-500 hover:text-destructive"
-                onClick={logout}
-              >
-                <LogOut className="mr-3 h-5 w-5" />
-                Logout
-              </Button>
+
+            <div className="mt-auto space-y-1 border-t border-purple-200/50 pt-4">
+              
+              <div className="mt-4 flex items-center justify-between border-t border-purple-200/50 pt-4">
+                <div className="flex min-w-0 items-center gap-3 overflow-hidden">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-200 text-sm font-bold text-slate-600">
+                    {user?.full_name?.charAt(0).toUpperCase() || "U"}
+                  </div>
+                  <div className="flex min-w-0 flex-col">
+                    <span className="truncate text-sm font-semibold text-slate-700">
+                      {user?.full_name || "User"}
+                    </span>
+                    <span className="truncate text-xs text-slate-400">
+                      {user?.email}
+                    </span>
+                  </div>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="shrink-0 text-slate-400 hover:text-red-600"
+                  aria-label="Log out"
+                  onClick={async () => {
+                    setIsMobileMenuOpen(false);
+                    await logout();
+                  }}
+                >
+                  <LogOut className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           </nav>
         </div>
       )}
 
       {/* Main Content */}
-      <main className="flex-1 rounded-xl my-2 md:ml-64 min-h-screen pt-16 md:pt-0">
-        <div className="p-6 max-w-[1400px] mx-auto h-full">
+      <main className="min-w-0 flex-1 overflow-x-hidden rounded-xl pt-[60px] md:ml-64 md:pt-0 md:my-2 min-h-screen">
+        <div className="mx-auto h-full max-w-[1400px] min-w-0 p-4 sm:p-6">
           <Outlet />
         </div>
       </main>
+      <Toaster richColors closeButton position="top-right" />
     </div>
+  );
+}
+
+export default function DashboardLayout() {
+  return (
+    <ConfirmDialogProvider>
+      <DashboardLayoutInner />
+    </ConfirmDialogProvider>
   );
 }

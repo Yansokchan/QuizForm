@@ -57,6 +57,7 @@ import {
   tryAgain,
 } from './studentQuiz/store'
 import { getElapsedMsForDeadline, getQuestionDurationMs } from './studentQuiz/utils'
+import { useDocumentTitle } from '../hooks/useDocumentTitle'
 
 export default function StudentQuizPage() {
   const { token } = useParams()
@@ -65,6 +66,8 @@ export default function StudentQuizPage() {
   const [bgImage] = useState(() => BG_IMAGES[Math.floor(Math.random() * BG_IMAGES.length)])
   const session = useSyncExternalStore(subscribeStudentQuiz, getStudentQuizSnapshot, getStudentQuizSnapshot)
   const [gate, setGate] = useState(() => ({ kind: 'loading' }))
+  const quizTitle = session.quiz?.title ?? gate.quiz?.title
+  useDocumentTitle(quizTitle || 'Quiz')
   const [gateReloadNonce, setGateReloadNonce] = useState(0)
   const hasRestoredRef = useRef(false)
   const answeringRef = useRef(false)

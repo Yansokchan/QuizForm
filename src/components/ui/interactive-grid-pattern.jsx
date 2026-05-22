@@ -1,9 +1,12 @@
-import { memo, useCallback, useId, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useId, useRef, useState } from "react";
 
 import { cn } from "@/lib/utils";
 
+const HOVER_MQ = "(hover: hover) and (pointer: fine)";
+
 /**
  * Lightweight grid background: one tiled SVG pattern + one hover cell (not thousands of rects).
+ * Hover is disabled on touch/coarse pointers so the grid does not block page scroll.
  */
 function InteractiveGridPatternInner({
   width = 40,
@@ -18,6 +21,17 @@ function InteractiveGridPatternInner({
   const svgRef = useRef(null);
   const rafRef = useRef(null);
   const [hover, setHover] = useState(null);
+  const [canHover, setCanHover] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia(HOVER_MQ);
+    const update = () => setCanHover(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+
+  const isInteractive = interactive && canHover;
 
   const [horizontal, vertical] = squares;
   const viewW = width * horizontal;
@@ -25,7 +39,7 @@ function InteractiveGridPatternInner({
 
   const scheduleHover = useCallback(
     (clientX, clientY) => {
-      if (!interactive) return;
+      if (!isInteractive) return;
 
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       rafRef.current = requestAnimationFrame(() => {
@@ -55,7 +69,7 @@ function InteractiveGridPatternInner({
         );
       });
     },
-    [interactive, width, height, horizontal, vertical]
+    [isInteractive, width, height, horizontal, vertical]
   );
 
   const onPointerMove = useCallback(
@@ -68,18 +82,22 @@ function InteractiveGridPatternInner({
     setHover(null);
   }, []);
 
+  useEffect(() => {
+    if (!isInteractive) setHover(null);
+  }, [isInteractive]);
+
   return (
     <svg
       ref={svgRef}
       viewBox={`0 0 ${viewW} ${viewH}`}
       preserveAspectRatio="none"
       className={cn(
-        "absolute inset-0 h-full w-full border-0 touch-none",
-        interactive && "pointer-events-auto",
+        "absolute inset-0 h-full w-full border-0",
+        isInteractive ? "touch-none pointer-events-auto" : "pointer-events-none",
         className
       )}
-      onPointerMove={onPointerMove}
-      onPointerLeave={onPointerLeave}
+      onPointerMove={isInteractive ? onPointerMove : undefined}
+      onPointerLeave={isInteractive ? onPointerLeave : undefined}
       {...props}>
       <defs>
         <pattern
@@ -97,7 +115,7 @@ function InteractiveGridPatternInner({
         </pattern>
       </defs>
       <rect width="100%" height="100%" fill={`url(#${patternId})`} />
-      {hover && (
+      {isInteractive && hover && (
         <rect
           x={hover.col * width}
           y={hover.row * height}

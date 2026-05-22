@@ -207,10 +207,8 @@ export function StudentQuizQuestionView({ snapshot, onDeadlineSet, onTimeout, on
                 className={`sq-option${selected ? ' sq-option-selected' : ''}`}
                 onClick={() => (multi ? toggleMulti(opt.id ?? opt.option_id) : pickSingle(opt.id ?? opt.option_id))}
               >
-                <span className={`sq-option-key${multi ? ' sq-option-key-multi' : ''}`}>
-                  {selected
-                    ? <i className={multi ? 'ti ti-check' : 'ti ti-point-filled'} style={{ fontSize: '10px' }} aria-hidden="true" />
-                    : optionLetter(idx)}
+                <span className={`sq-option-key${multi ? ' sq-option-key-multi' : ''}`} aria-hidden="true">
+                  {optionLetter(idx)}
                 </span>
                 <span>{opt.option_text}</span>
               </button>

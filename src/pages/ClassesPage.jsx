@@ -42,6 +42,7 @@ import {
   getFilteredRowModel,
 } from "@tanstack/react-table";
 import { Button } from "../components/ui/button";
+import { notify } from "../lib/notify";
 
 export default function ClassesPage() {
   const { session } = useAuth();
@@ -59,7 +60,7 @@ export default function ClassesPage() {
         return;
       }
       setLoading(true);
-      const { data } = await supabase.from("submissions").select(`
+      const { data, error } = await supabase.from("submissions").select(`
           id,
           student_name,
           total_score,
@@ -72,6 +73,13 @@ export default function ClassesPage() {
           )
         `)
         .eq("quizzes.teacher_id", teacherId);
+
+      if (error) {
+        notify.error("Failed to load classes and students.");
+        setSubmissions([]);
+        setLoading(false);
+        return;
+      }
 
       if (data) {
         setSubmissions(data);
@@ -226,7 +234,7 @@ export default function ClassesPage() {
   }, [studentData, submissions]);
 
   return (
-    <div className="space-y-6">
+    <div className="min-w-0 max-w-full space-y-6">
       <div>
         <h2 className="text-3xl font-bold tracking-tight">
           Classes & Students
@@ -346,7 +354,7 @@ export default function ClassesPage() {
         )}
       </div>
 
-      <div className="border-none overflow-hidden">
+      <div className="min-w-0 max-w-full border-none">
         <Table>
           <TableHeader className="bg-purple-100">
             {table.getHeaderGroups().map((headerGroup) => (

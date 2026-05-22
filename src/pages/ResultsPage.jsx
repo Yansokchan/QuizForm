@@ -31,6 +31,8 @@ import {
 } from "@tanstack/react-table";
 import "./AppPages.css";
 import { answerHasSelection } from "../lib/answerRecord";
+import { notify } from "../lib/notify";
+import { useDocumentTitle } from "../hooks/useDocumentTitle";
 
 export default function ResultsPage() {
   const { id } = useParams();
@@ -42,10 +44,14 @@ export default function ResultsPage() {
   const [submissions, setSubmissions] = useState([]);
   const [active, setActive] = useState("all");
   const [loading, setLoading] = useState(true);
+  const [quizTitle, setQuizTitle] = useState("");
+
+  useDocumentTitle(quizTitle ? `Results · ${quizTitle}` : "Results");
 
   useEffect(() => {
     (async () => {
       if (!teacherId || !id) {
+        setQuizTitle("");
         setClasses([]);
         setQuestions([]);
         setSubmissions([]);
@@ -53,29 +59,47 @@ export default function ResultsPage() {
         return;
       }
       setLoading(true);
-      const { data: quizRow } = await supabase
+      const { data: quizRow, error: quizError } = await supabase
         .from("quizzes")
-        .select("id")
+        .select("id, title")
         .eq("id", id)
         .eq("teacher_id", teacherId)
         .maybeSingle();
-      if (!quizRow) {
+      if (quizError) {
+        notify.error("Failed to load quiz results.");
+        setLoading(false);
         navigate("/dashboard/quizzes", { replace: true });
         return;
       }
-      const { data: cData } = await supabase
+      if (!quizRow) {
+        notify.error("Quiz not found.");
+        setLoading(false);
+        navigate("/dashboard/quizzes", { replace: true });
+        return;
+      }
+      const { data: cData, error: classError } = await supabase
         .from("quiz_classes")
         .select("*")
         .eq("quiz_id", id);
-      const { data: qData } = await supabase
+      const { data: qData, error: questionError } = await supabase
         .from("questions")
         .select("id, question_text, order_index")
         .eq("quiz_id", id)
         .order("order_index");
-      const { data: sData } = await supabase
+      const { data: sData, error: submissionError } = await supabase
         .from("submissions")
         .select("*, quiz_classes(class_name), answers(*)")
         .eq("quiz_id", id);
+      const fetchError = classError || questionError || submissionError;
+      if (fetchError) {
+        notify.error("Failed to load quiz results.");
+        setClasses([]);
+        setQuestions([]);
+        setSubmissions([]);
+        setLoading(false);
+        return;
+      }
+      setQuizTitle(quizRow.title ?? "");
       setClasses(cData ?? []);
       setQuestions(qData ?? []);
       setSubmissions(sData ?? []);
@@ -208,6 +232,10 @@ export default function ResultsPage() {
   });
 
   const exportXlsx = () => {
+    if (rows.length === 0) {
+      notify.info("No submission data to export.");
+      return;
+    }
     const wb = XLSX.utils.book_new();
 
     const summaryRows = (
@@ -271,6 +299,7 @@ export default function ResultsPage() {
     XLSX.utils.book_append_sheet(wb, student, "Student Results");
     XLSX.utils.book_append_sheet(wb, analysisSheet, "Question Analysis");
     XLSX.writeFile(wb, "quiz-results.xlsx");
+    notify.success("Results exported to Excel.");
   };
 
   return (
@@ -347,7 +376,7 @@ export default function ResultsPage() {
 
       <ResultsTable rows={rows} loading={loading} />
 
-      <div className="overflow-hidden">
+      <div className="min-w-0 max-w-full">
         <div className="pb-4">
           <div className="text-lg font-bold text-slate-700">
             Question Analysis

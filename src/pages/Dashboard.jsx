@@ -22,6 +22,7 @@ import {
   Clock,
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { notify } from "../lib/notify";
 
 /* ─── Skeleton primitive ─────────────────────────────────────────── */
 const Sk = ({ className = "" }) => (
@@ -148,11 +149,20 @@ export default function Dashboard() {
         return;
       }
       setLoading(true);
-      const { data: quizzesData } = await supabase
+      const { data: quizzesData, error } = await supabase
         .from("quizzes")
         .select("id, title, created_at, start_at, end_at, is_paused, quiz_classes(id, class_name), submissions(id, total_score, quiz_class_id)")
         .eq("teacher_id", teacherId)
         .order("created_at", { ascending: false });
+
+      if (error) {
+        notify.error("Failed to load dashboard data.");
+        setStats({ totalQuizzes: 0, totalClasses: 0, totalSubmissions: 0, avgScore: 0 });
+        setRecentQuizzes([]);
+        setTopClasses([]);
+        setLoading(false);
+        return;
+      }
 
       if (quizzesData) {
         let totalClasses = 0, totalSubmissions = 0, totalScoreSum = 0;

@@ -45,7 +45,7 @@
 
   --sq-shadow-card:  0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
 
-  /* Light theme only — ignore OS dark preference for this page */
+  /* Light theme only — ignore OS / landing-page dark preference */
   color-scheme: light;
 
   font-family: var(--sq-font);
@@ -54,6 +54,12 @@
   color: var(--sq-text);
   background: var(--sq-bg);
   min-height: 100dvh;
+}
+
+.dark [data-student-quiz] {
+  color-scheme: light;
+  background: var(--sq-bg);
+  color: var(--sq-text);
 }
 
 /* Reset only inside the quiz shell; :where(…) keeps specificity low so .sq-* padding wins */
@@ -155,8 +161,10 @@
 }
 
 [data-student-quiz] .sq-input,
-[data-student-quiz] .sq-select {
+[data-student-quiz] .sq-select,
+[data-student-quiz] .sq-class-trigger {
   width: 100%;
+  min-height: 44px;
   padding: 10px 13px;
   border: 0.5px solid var(--sq-border);
   border-radius: var(--sq-radius-sm);
@@ -164,14 +172,17 @@
   color: var(--sq-text);
   font-family: var(--sq-font);
   font-size: 15px;
+  line-height: 1.4;
   outline: none;
   transition: border-color 0.15s, box-shadow 0.15s;
   appearance: none;
   -webkit-appearance: none;
+  box-sizing: border-box;
 }
 [data-student-quiz] .sq-input::placeholder { color: var(--sq-text-hint); }
 [data-student-quiz] .sq-input:focus,
-[data-student-quiz] .sq-select:focus {
+[data-student-quiz] .sq-select:focus,
+[data-student-quiz] .sq-class-trigger:focus-visible {
   border-color: var(--sq-accent);
   box-shadow: 0 0 0 3px rgba(83,74,183,0.12);
   background: var(--sq-surface);
@@ -185,7 +196,53 @@
   cursor: pointer;
 }
 
+[data-student-quiz] .sq-class-trigger {
+  height: 44px !important;
+  min-height: 44px !important;
+}
+
+[data-student-quiz] .sq-class-trigger:hover:not(:disabled) {
+  background: var(--sq-surface-alt);
+}
+
+[data-student-quiz] .sq-class-trigger[aria-expanded="true"] {
+  border-color: var(--sq-accent);
+  box-shadow: 0 0 0 3px rgba(83, 74, 183, 0.12);
+  background: var(--sq-surface);
+}
+
+[data-student-quiz] .sq-class-dropdown {
+  display: block;
+  width: 100%;
+}
+
+[data-student-quiz] .sq-class-dropdown [data-slot="dropdown-menu-trigger"] {
+  display: block;
+  width: 100%;
+}
+
 [data-student-quiz] .sq-form-group { margin-bottom: 1rem; }
+
+/* Class menu portals to document body — force light UI even when html.dark */
+.sq-class-menu {
+  color-scheme: light;
+  background: #ffffff !important;
+  color: #1a1917 !important;
+  border: 0.5px solid rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08) !important;
+  --accent: #eeedfe;
+  --accent-foreground: #1a1917;
+}
+
+.sq-class-menu [data-slot="dropdown-menu-item"] {
+  color: #1a1917 !important;
+}
+
+.sq-class-menu [data-slot="dropdown-menu-item"]:focus,
+.sq-class-menu [data-slot="dropdown-menu-item"][data-highlighted] {
+  background: #eeedfe !important;
+  color: #534ab7 !important;
+}
 
 [data-student-quiz] .sq-error {
   display: flex;

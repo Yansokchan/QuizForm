@@ -4,9 +4,9 @@ export default function LandingSteps() {
       <p className="steps-label">How it works</p>
       <div className="steps-row">
         {[
-          { n: "I", title: "Create", body: "Sign in, write questions, and set time limits per item." },
-          { n: "II", title: "Share", body: "Copy the public quiz link and share it with students." },
-          { n: "III", title: "Review", body: "Track results in the dashboard and export reports by class." },
+          { n: "I", title: "Create", body: "Sign in with Google, add questions, and set a time limit for each one." },
+          { n: "II", title: "Share", body: "Copy the quiz link and send it to your class." },
+          { n: "III", title: "Review", body: "Check scores in the dashboard and export by class when you need to." },
         ].map((step) => (
           <div className="step" key={step.n}>
             <div className="step-n">{step.n}</div><h3>{step.title}</h3><p>{step.body}</p>

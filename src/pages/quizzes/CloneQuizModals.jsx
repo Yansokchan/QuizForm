@@ -1,15 +1,14 @@
 import { useState, useRef } from "react";
 import { createPortal } from "react-dom";
-import {
-  Copy,
-  X,
-  CheckCircle2,
-  ExternalLink,
-  Loader2,
-  AlertCircle,
-} from "lucide-react";
+import { Copy, X, Loader2, AlertCircle } from "lucide-react";
 import { supabase } from "../../lib/supabase";
+import { notify } from "../../lib/notify";
 import "../AppPages.css";
+
+function showFormError(setFormError, message) {
+  setFormError(message);
+  notify.error(message);
+}
 
 export function CloneQuizDialog({ sourceQuiz, onClose, onSuccess }) {
   const [title, setTitle] = useState(`Copy of ${sourceQuiz.title}`);
@@ -33,7 +32,9 @@ export function CloneQuizDialog({ sourceQuiz, onClose, onSuccess }) {
     const name = classInput.trim();
     if (!name) return;
     if (classes.find((c) => c.name.toLowerCase() === name.toLowerCase())) {
-      setClassError("Class already added.");
+      const msg = "Class already added.";
+      setClassError(msg);
+      notify.error(msg);
       return;
     }
     setClasses((p) => [...p, { name, isExisting: false }]);
@@ -50,21 +51,21 @@ export function CloneQuizDialog({ sourceQuiz, onClose, onSuccess }) {
   const handleClone = async () => {
     setFormError("");
     if (!title.trim()) {
-      setFormError("Quiz title is required.");
+      showFormError(setFormError, "Quiz title is required.");
       return;
     }
     if (!startAt || !endAt) {
-      setFormError("Start and end date/time are required.");
+      showFormError(setFormError, "Start and end date/time are required.");
       return;
     }
     const s = new Date(startAt);
     const en = new Date(endAt);
     if (s >= en) {
-      setFormError("Start time must be before end time.");
+      showFormError(setFormError, "Start time must be before end time.");
       return;
     }
     if (classes.length === 0) {
-      setFormError("Add at least one class.");
+      showFormError(setFormError, "Add at least one class.");
       return;
     }
 
@@ -73,7 +74,7 @@ export function CloneQuizDialog({ sourceQuiz, onClose, onSuccess }) {
       const { data: sessionData } = await supabase.auth.getSession();
       const userId = sessionData.session?.user?.id;
       if (!userId) {
-        setFormError("Session expired. Please log in.");
+        showFormError(setFormError, "Session expired. Please log in.");
         setCloning(false);
         return;
       }
@@ -127,7 +128,10 @@ export function CloneQuizDialog({ sourceQuiz, onClose, onSuccess }) {
 
       onSuccess(newQuiz.id, title.trim());
     } catch (err) {
-      setFormError(err.message || "Clone failed. Please try again.");
+      showFormError(
+        setFormError,
+        err.message || "Clone failed. Please try again.",
+      );
       setCloning(false);
     }
   };
@@ -279,53 +283,6 @@ export function CloneQuizDialog({ sourceQuiz, onClose, onSuccess }) {
                 <Copy size={15} /> Clone quiz
               </>
             )}
-          </button>
-        </div>
-      </div>
-    </div>,
-    document.body,
-  );
-}
-
-export function CloneSuccessPopup({ title, newId: _newId, onClose, onView }) {
-  return createPortal(
-    <div className="cq-overlay" style={{ zIndex: 60 }}>
-      <div className="cq-success-dialog">
-        <div className="cq-success-ring">
-          <CheckCircle2 size={28} />
-        </div>
-        <h3
-          style={{
-            fontSize: 16,
-            fontWeight: 500,
-            color: "#1a1917",
-            marginBottom: "0.35rem",
-          }}
-        >
-          Quiz cloned!
-        </h3>
-        <p style={{ fontSize: 13.5, color: "#6b6965", lineHeight: 1.6 }}>
-          <strong style={{ color: "#534AB7", fontWeight: 500 }}>
-            &quot;{title}&quot;
-          </strong>{" "}
-          has been successfully created.
-        </p>
-        <div className="cq-success-actions">
-          <button
-            type="button"
-            className="cq-btn-primary"
-            onClick={onView}
-            style={{ width: "100%" }}
-          >
-            <ExternalLink size={15} /> View new quiz
-          </button>
-          <button
-            type="button"
-            className="cq-btn-cancel"
-            onClick={onClose}
-            style={{ width: "100%", justifyContent: "center" }}
-          >
-            Stay on this page
           </button>
         </div>
       </div>
