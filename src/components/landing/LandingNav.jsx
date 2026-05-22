@@ -11,7 +11,10 @@ export default function LandingNav({ scrolled }) {
 
   return (
     <nav className={`lp-nav${scrolled ? " s" : ""}`}>
-      <Link to="/" className="lp-logo">QuizForm</Link>
+      <Link to="/" className="lp-logo">
+      <img src="/logo.avif" alt="QuizForm" className="h-8 w-8" />
+      QuizForm
+      </Link>
       <div className="lp-nav-r">
         <AnimatedThemeToggler className="nav-link theme-toggle-btn" />
         {!loading && isSignedIn && (
