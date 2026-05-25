@@ -188,26 +188,6 @@ After creating a quiz, use the share link from the editor so students open `/q/.
 
 ---
 
-## Troubleshooting
-
-- **Blank page or “missing Supabase configuration”** — Check `.env` has both `VITE_*` variables and restart the dev server.
-- **Teacher login fails** — Confirm Google provider and redirect URLs in Supabase Auth settings.
-- **Student cannot start or submit quiz** — Edge Functions not deployed, or SQL migrations not applied. Check Supabase **Logs** for function errors.
-- **Teacher sees no data** — You must be logged in as the same user who created the quiz (`teacher_id` links to `auth.users`).
-
----
-
-## Submission checklist (for course hand-in)
-
-- [ ] Source code (this repository)
-- [ ] This `README.md` with setup steps
-- [ ] SQL: `supabase/schema.sql` + files in `supabase/migrations/`
-- [ ] How to run: `npm install` → `npm run dev`
-- [ ] Note that backend = Supabase project URL + deployed Edge Functions
-- [ ] `.env` example or credentials document (not committed to git if public)
-
----
-
 ## Team members
 
 | No. | Member's name |
