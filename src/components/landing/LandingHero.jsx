@@ -17,7 +17,7 @@ export default function LandingHero() {
     else openLogin();
   }, [loading, session, navigate, openLogin]);
 
-  const ctaLabel = session ? "Go to dashboard" : "Start as Teacher";
+  const ctaLabel = session ? "Go to dashboard" : "Get Started";
 
   return (
     <section className="flex flex-col items-start justify-center pl-12 h-screen hero">

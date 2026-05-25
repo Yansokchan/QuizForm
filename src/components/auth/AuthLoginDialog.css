@@ -122,6 +122,15 @@
   flex-shrink: 0;
 }
 
+.auth-login-spinner {
+  flex-shrink: 0;
+  animation: authLoginSpin 0.75s linear infinite;
+}
+
+.auth-login-google.is-busy {
+  pointer-events: none;
+}
+
 .auth-login-error {
   margin: 0.85rem 0 0;
   font-size: 0.82rem;
@@ -150,5 +159,11 @@
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes authLoginSpin {
+  to {
+    transform: rotate(360deg);
   }
 }

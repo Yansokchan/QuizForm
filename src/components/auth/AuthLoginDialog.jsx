@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
+import { Loader2 } from 'lucide-react'
 import { signInWithGoogle } from '../../lib/signInWithGoogle'
 import './AuthLoginDialog.css'
 
@@ -99,11 +100,16 @@ export default function AuthLoginDialog({ open, onOpenChange }) {
 
         <button
           type="button"
-          className="auth-login-google"
+          className={`auth-login-google${busy ? ' is-busy' : ''}`}
           onClick={handleGoogleLogin}
           disabled={busy}
+          aria-busy={busy}
         >
-          <GoogleMark />
+          {busy ? (
+            <Loader2 className="auth-login-spinner" size={20} aria-hidden="true" />
+          ) : (
+            <GoogleMark />
+          )}
           {busy ? 'Redirecting…' : 'Continue with Google'}
         </button>
 
